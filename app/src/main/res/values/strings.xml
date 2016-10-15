@@ -43,6 +43,7 @@
     <string name="pause">Pause</string>
     <string name="resume">Resume</string>
     <string name="title_timer">Timer</string>
+    <string name="title_settings">Settings</string>
     <string name="home">Home</string>
     <string name="navigation_drawer_open">Drawer Open</string>
     <string name="navigation_drawer_close">Drawer Close</string>
@@ -114,6 +115,9 @@
     <string name="user_files_browser_error_message_delete_item">Failed to delete item due to \'%s\'.</string>
     <string name="user_files_browser_error_message_download_item">Failed to download item due to \'%s\'.</string>
     <string name="user_files_browser_error_message_upload_file">Failed to upload file due to \'%s\'.</string>
+    <string name="user_settings_notifications">Notifications</string>
+    <string name="settings_fragment_dialog_title">Please wait &#8230;</string>
+    <string name="settings_fragment_dialog_message">Loading&#8230;</string>
 
 
 </resources>

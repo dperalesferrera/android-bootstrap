@@ -3,23 +3,17 @@
 package com.donnfelker.android.bootstrap.ui;
 
 import android.accounts.OperationCanceledException;
-
-
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-
 import android.support.v4.app.FragmentManager;
-
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-
+import butterknife.ButterKnife;
 import com.donnfelker.android.bootstrap.BootstrapApplication;
-import com.donnfelker.android.bootstrap.BootstrapComponent;
 import com.donnfelker.android.bootstrap.BootstrapServiceProvider;
 import com.donnfelker.android.bootstrap.R;
 import com.donnfelker.android.bootstrap.core.BootstrapService;
@@ -27,11 +21,9 @@ import com.donnfelker.android.bootstrap.events.NavItemSelectedEvent;
 import com.donnfelker.android.bootstrap.util.SafeAsyncTask;
 import com.donnfelker.android.bootstrap.util.UIUtils;
 import com.squareup.otto.Subscribe;
+import timber.log.Timber;
 
 import javax.inject.Inject;
-
-import butterknife.ButterKnife;
-import timber.log.Timber;
 
 
 /**
@@ -186,6 +178,9 @@ public class MainActivity extends BootstrapActivity {
             case R.id.timer:
                 navigateToTimer();
                 return true;
+            case R.id.user_settings:
+                navigateToUserSettings();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -193,6 +188,11 @@ public class MainActivity extends BootstrapActivity {
 
     private void navigateToTimer() {
         final Intent i = new Intent(this, BootstrapTimerActivity.class);
+        startActivity(i);
+    }
+
+    private void navigateToUserSettings() {
+        final Intent i = new Intent(this, UserSettingsActivity.class);
         startActivity(i);
     }
 
@@ -209,6 +209,10 @@ public class MainActivity extends BootstrapActivity {
             case 1:
                 // Timer
                 navigateToTimer();
+                break;
+            case 2:
+                // User Settings
+                navigateToUserSettings();
                 break;
         }
     }

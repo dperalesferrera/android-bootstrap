@@ -18,6 +18,13 @@
     </item>
 
     <item
+        android:id="@+id/user_settings"
+        android:icon="@drawable/ic_action_timer"
+        android:showAsAction="always"
+        android:title="@string/title_settings">
+    </item>
+
+    <item
         android:id="@+id/logout"
         android:showAsAction="never"
         android:title="@string/logout_action" >

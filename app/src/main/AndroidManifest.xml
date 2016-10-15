@@ -80,6 +80,7 @@
 
         <activity android:name=".ui.NewsActivity" />
         <activity android:name=".ui.UserActivity" android:label="@string/app_name" />
+        <activity android:name=".ui.UserSettingsActivity" android:label="@string/app_name" />
 
         <!-- Replace with your Fabric Crashlytics key from Fabric.io -->
         <meta-data
