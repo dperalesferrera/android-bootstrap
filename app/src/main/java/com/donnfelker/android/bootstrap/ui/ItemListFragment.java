@@ -23,6 +23,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.amazonaws.mobile.AWSMobileClient;
+import com.amazonaws.mobile.user.IdentityManager;
 import com.donnfelker.android.bootstrap.R;
 import com.donnfelker.android.bootstrap.R.id;
 import com.donnfelker.android.bootstrap.R.layout;
@@ -80,6 +82,9 @@ public abstract class ItemListFragment<E> extends Fragment
      */
     protected boolean listShown;
 
+    /** The identity manager used to keep track of the current user account. */
+    private IdentityManager identityManager;
+
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -89,6 +94,17 @@ public abstract class ItemListFragment<E> extends Fragment
         }
 
         getLoaderManager().initLoader(0, null, this);
+
+
+        // Obtain a reference to the mobile client. It is created in the Application class,
+        // but in case a custom Application class is not used, we initialize it here if necessary.
+        AWSMobileClient.initializeMobileClientIfNecessary(getActivity());
+
+        // Obtain a reference to the mobile client. It is created in the Application class.
+        final AWSMobileClient awsMobileClient = AWSMobileClient.defaultMobileClient();
+
+        // Obtain a reference to the identity manager.
+        identityManager = awsMobileClient.getIdentityManager();
     }
 
     @Override
@@ -175,6 +191,10 @@ public abstract class ItemListFragment<E> extends Fragment
         getLogoutService().logout(new Runnable() {
             @Override
             public void run() {
+
+                // The user is currently signed in with a provider. Sign out of that provider.
+                identityManager.signOut();
+
                 // Calling a refresh will force the service to look for a logged in user
                 // and when it finds none the user will be requested to log in again.
                 forceRefresh();
