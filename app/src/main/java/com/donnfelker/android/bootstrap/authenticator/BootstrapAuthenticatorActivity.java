@@ -455,18 +455,12 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
 
             setAccountAuthenticatorResult(intent.getExtras());
             setResult(RESULT_OK, intent);
-//            finish();
 
-
-            // Load user name and image.
             AWSMobileClient.defaultMobileClient()
                     .getIdentityManager().loadUserInfoAndImage(provider, new Runnable() {
                 @Override
                 public void run() {
                     Log.d(LOG_TAG, "Launching Main Activity...");
-//                    startActivity(new Intent(BootstrapAuthenticatorActivity.this, MainActivity.class)
-//                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                    // finish should always be called on the main thread.
                     finish();
                 }
             });
