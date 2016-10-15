@@ -2,6 +2,7 @@ package com.donnfelker.android.bootstrap.authenticator;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -11,6 +12,7 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
@@ -20,7 +22,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-
+import android.widget.Toast;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import com.amazonaws.mobile.AWSMobileClient;
+import com.amazonaws.mobile.user.IdentityManager;
+import com.amazonaws.mobile.user.IdentityProvider;
+import com.amazonaws.mobile.user.signin.FacebookSignInProvider;
+import com.amazonaws.mobile.user.signin.SignInManager;
 import com.donnfelker.android.bootstrap.BootstrapApplication;
 import com.donnfelker.android.bootstrap.R;
 import com.donnfelker.android.bootstrap.R.id;
@@ -30,28 +39,21 @@ import com.donnfelker.android.bootstrap.core.BootstrapService;
 import com.donnfelker.android.bootstrap.core.Constants;
 import com.donnfelker.android.bootstrap.core.User;
 import com.donnfelker.android.bootstrap.events.UnAuthorizedErrorEvent;
+import com.donnfelker.android.bootstrap.ui.MainActivity;
 import com.donnfelker.android.bootstrap.ui.TextWatcherAdapter;
 import com.donnfelker.android.bootstrap.util.SafeAsyncTask;
 import com.donnfelker.android.bootstrap.util.Toaster;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
-
 import retrofit.RetrofitError;
 import timber.log.Timber;
 
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+
 import static android.R.layout.simple_dropdown_item_1line;
-import static android.accounts.AccountManager.KEY_ACCOUNT_NAME;
-import static android.accounts.AccountManager.KEY_ACCOUNT_TYPE;
-import static android.accounts.AccountManager.KEY_AUTHTOKEN;
-import static android.accounts.AccountManager.KEY_BOOLEAN_RESULT;
+import static android.accounts.AccountManager.*;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
@@ -60,6 +62,8 @@ import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
  * Activity to authenticate the user against an API (example API on Parse.com)
  */
 public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticatorActivity {
+
+    private final static String LOG_TAG = BootstrapAuthenticatorActivity.class.getSimpleName();
 
     /**
      * PARAM_CONFIRM_CREDENTIALS
@@ -84,12 +88,17 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
 
     private AccountManager accountManager;
 
-    @Inject BootstrapService bootstrapService;
-    @Inject Bus bus;
+    @Inject
+    BootstrapService bootstrapService;
+    @Inject
+    Bus bus;
 
-    @Bind(id.et_email) protected AutoCompleteTextView emailText;
-    @Bind(id.et_password) protected EditText passwordText;
-    @Bind(id.b_signin) protected Button signInButton;
+    @Bind(id.et_email)
+    protected AutoCompleteTextView emailText;
+    @Bind(id.et_password)
+    protected EditText passwordText;
+    @Bind(id.b_signin)
+    protected Button signInButton;
 
     private final TextWatcher watcher = validationTextWatcher();
 
@@ -106,6 +115,9 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
     private String email;
 
     private String password;
+
+    //AWS
+    private SignInManager signInManager;
 
 
     /**
@@ -169,9 +181,25 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
         emailText.addTextChangedListener(watcher);
         passwordText.addTextChangedListener(watcher);
 
+
         final TextView signUpText = (TextView) findViewById(id.tv_signup);
         signUpText.setMovementMethod(LinkMovementMethod.getInstance());
         signUpText.setText(Html.fromHtml(getString(string.signup_link)));
+
+        //AWS
+        signInManager = SignInManager.getInstance(this);
+
+        signInManager.setResultsHandler(this, new SignInResultsHandler());
+
+        // Initialize sign-in buttons.
+        signInManager.initializeSignInButton(FacebookSignInProvider.class,
+                this.findViewById(R.id.fb_login_button));
+    }
+
+    @Override
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        signInManager.handleActivityResult(requestCode, resultCode, data);
     }
 
     private List<String> userEmailAccounts() {
@@ -271,9 +299,9 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
             @Override
             protected void onException(final Exception e) throws RuntimeException {
                 // Retrofit Errors are handled inside of the {
-                if(!(e instanceof RetrofitError)) {
+                if (!(e instanceof RetrofitError)) {
                     final Throwable cause = e.getCause() != null ? e.getCause() : e;
-                    if(cause != null) {
+                    if (cause != null) {
                         Toaster.showLong(BootstrapAuthenticatorActivity.this, cause.getMessage());
                     }
                 }
@@ -381,6 +409,98 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
                 Toaster.showLong(BootstrapAuthenticatorActivity.this,
                         string.message_auth_failed);
             }
+        }
+    }
+
+
+    private class SignInResultsHandler implements IdentityManager.SignInResultsHandler {
+        /**
+         * Receives the successful sign-in result and starts the main activity.
+         * @param provider the identity provider used for sign-in.
+         */
+        @Override
+        public void onSuccess(final IdentityProvider provider) {
+            Log.d(LOG_TAG, String.format("User sign-in with %s succeeded",
+                    provider.getDisplayName()));
+
+            // The sign-in manager is no longer needed once signed in.
+            SignInManager.dispose();
+
+            Toast.makeText(BootstrapAuthenticatorActivity.this, String.format("Sign-in with %s succeeded.",
+                    provider.getDisplayName()), Toast.LENGTH_LONG).show();
+
+            //Integracion con el login de bootstrap
+            token = provider.getToken();
+            email = AWSMobileClient.defaultMobileClient()
+                    .getIdentityManager().getCachedUserID();
+            final Account account = new Account(email, Constants.Auth.BOOTSTRAP_ACCOUNT_TYPE);
+
+            authToken = token;
+
+            if (requestNewAccount) {
+                accountManager.addAccountExplicitly(account, password, null);
+                accountManager.setAuthToken(account, Constants.Auth.BOOTSTRAP_ACCOUNT_TYPE, authToken);
+            } else {
+                accountManager.setPassword(account, password);
+            }
+
+            final Intent intent = new Intent();
+            intent.putExtra(KEY_ACCOUNT_NAME, email);
+            intent.putExtra(KEY_ACCOUNT_TYPE, Constants.Auth.BOOTSTRAP_ACCOUNT_TYPE);
+
+            if (authTokenType != null
+                    && authTokenType.equals(Constants.Auth.AUTHTOKEN_TYPE)) {
+                intent.putExtra(KEY_AUTHTOKEN, authToken);
+            }
+
+            setAccountAuthenticatorResult(intent.getExtras());
+            setResult(RESULT_OK, intent);
+//            finish();
+
+
+            // Load user name and image.
+            AWSMobileClient.defaultMobileClient()
+                    .getIdentityManager().loadUserInfoAndImage(provider, new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(LOG_TAG, "Launching Main Activity...");
+//                    startActivity(new Intent(BootstrapAuthenticatorActivity.this, MainActivity.class)
+//                            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    // finish should always be called on the main thread.
+                    finish();
+                }
+            });
+        }
+
+        /**
+         * Recieves the sign-in result indicating the user canceled and shows a toast.
+         * @param provider the identity provider with which the user attempted sign-in.
+         */
+        @Override
+        public void onCancel(final IdentityProvider provider) {
+            Log.d(LOG_TAG, String.format("User sign-in with %s canceled.",
+                    provider.getDisplayName()));
+
+            Toast.makeText(BootstrapAuthenticatorActivity.this, String.format("Sign-in with %s canceled.",
+                    provider.getDisplayName()), Toast.LENGTH_LONG).show();
+        }
+
+        /**
+         * Receives the sign-in result that an error occurred signing in and shows a toast.
+         * @param provider the identity provider with which the user attempted sign-in.
+         * @param ex the exception that occurred.
+         */
+        @Override
+        public void onError(final IdentityProvider provider, final Exception ex) {
+            Log.e(LOG_TAG, String.format("User Sign-in failed for %s : %s",
+                    provider.getDisplayName(), ex.getMessage()), ex);
+
+            final AlertDialog.Builder errorDialogBuilder = new AlertDialog.Builder(BootstrapAuthenticatorActivity.this);
+            errorDialogBuilder.setTitle("Sign-In Error");
+            errorDialogBuilder.setMessage(
+                    String.format("Sign-in with %s failed.\n%s", provider.getDisplayName(), ex.getMessage()));
+            errorDialogBuilder.setNeutralButton("Ok", null);
+            errorDialogBuilder.show();
         }
     }
 }

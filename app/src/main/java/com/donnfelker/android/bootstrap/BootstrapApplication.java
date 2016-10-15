@@ -3,10 +3,7 @@
 package com.donnfelker.android.bootstrap;
 
 import android.app.Application;
-import android.content.Context;
-
-import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
+import com.amazonaws.mobile.AWSMobileClient;
 
 /**
  * Android Bootstrap application
@@ -35,8 +32,20 @@ public abstract class BootstrapApplication extends Application {
         //Injector.init(this, )
         component = DaggerComponentInitializer.init();
 
+        initializeApplication();
+
         onAfterInjection();
     }
+
+    private void initializeApplication() {
+
+        // Initialize the AWS Mobile Client
+        AWSMobileClient.initializeMobileClientIfNecessary(getApplicationContext());
+
+        // ... Put any application-specific initialization logic here ...
+    }
+
+
     public static BootstrapComponent component() {
         return instance.component;
     }

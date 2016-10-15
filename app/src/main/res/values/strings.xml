@@ -3,6 +3,9 @@
 <resources>
 
     <string name="app_name">Android Bootstrap</string>
+
+    <string name="facebook_app_id">1132463496846565</string>
+
     <string name="content_column">Content</string>
     <string name="page_referrers">Referrers</string>
     <string name="refresh_action">Refresh</string>
