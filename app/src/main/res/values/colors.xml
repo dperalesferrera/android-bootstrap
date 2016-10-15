@@ -44,4 +44,8 @@
     <color name="dark_grey">#1f1f1f</color>
     <color name="navigation_drawer_item_separator">#c2c2c2</color>
 
+    <color name="dark_content_text">#333333</color>
+    <color name="splash_text">#F58535</color>
+    <color name="splash_background">#FFFFFF</color>
+
 </resources>

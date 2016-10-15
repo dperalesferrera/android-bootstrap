@@ -18,8 +18,17 @@ import com.amazonaws.regions.Regions;
 public class AWSConfiguration {
 
     // AWS MobileHub user agent string
-    public static final String AWS_MOBILEHUB_USER_AGENT = "MobileHub 54d07d6a-2651-49af-b469-ea5f05b24071 aws-my-sample-app-android-v0.9";
+    public static final String AWS_MOBILEHUB_USER_AGENT =
+        "MobileHub 54d07d6a-2651-49af-b469-ea5f05b24071 aws-my-sample-app-android-v0.9";
     // AMAZON COGNITO
-    public static final Regions AMAZON_COGNITO_REGION = Regions.fromName("eu-west-1");
-    public static final String AMAZON_COGNITO_IDENTITY_POOL_ID = "eu-west-1:84f29f2c-16c6-420d-b744-2f850faf07fe";
+    public static final Regions AMAZON_COGNITO_REGION =
+      Regions.fromName("eu-west-1");
+    public static final String  AMAZON_COGNITO_IDENTITY_POOL_ID =
+        "eu-west-1:84f29f2c-16c6-420d-b744-2f850faf07fe";
+    // S3 BUCKET
+    public static final String AMAZON_S3_USER_FILES_BUCKET =
+        "awsmobileworkshop-userfiles-mobilehub-1409238768";
+    // S3 BUCKET REGION
+    public static final Regions AMAZON_S3_USER_FILES_BUCKET_REGION =
+        Regions.fromName("eu-west-1");
 }
