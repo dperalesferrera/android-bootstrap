@@ -151,6 +151,9 @@ dependencies {
     compile 'com.google.android.gms:play-services-gcm:9.6.1'
     // add the mobile analytics SDK dependency
     compile('com.amazonaws:aws-android-sdk-mobileanalytics:2.3.2')
+    // add the DynamoDB SDK and DynamoDB Object Mapper dependency
+    compile('com.amazonaws:aws-android-sdk-ddb:2.3.2')
+    compile('com.amazonaws:aws-android-sdk-ddb-mapper:2.3.2')
 
     //Facebook
     compile 'com.facebook.android:facebook-android-sdk:4.6.0'

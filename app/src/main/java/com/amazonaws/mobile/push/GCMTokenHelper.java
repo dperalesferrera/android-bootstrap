@@ -8,7 +8,6 @@ import android.util.Log;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
-
 import java.util.HashSet;
 import java.util.Set;
 

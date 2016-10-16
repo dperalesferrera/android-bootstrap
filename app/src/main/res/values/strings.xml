@@ -129,5 +129,9 @@
     <string name="push_demo_error_message_update_subscription">Failed to update subscription due to \'%s\'.</string>
     <string name="push_demo_error_message_google_play_services_unavailable">Push Notifications are disabled because Google Play Services are unavailable on the device.</string>
     <string name="push_demo_confirm_message_unsubscribe">Do you want to unsubscribe from \'%s\'.</string>
+    <string name="nosql_dialog_title_failed_operation_text">Operation Failed</string>
+    <string name="nosql_dialog_title_added_news_data_text">Added News Data</string>
+    <string name="nosql_dialog_message_added_news_data_text">Added new viewed to your table.</string>
+    <string name="nosql_dialog_ok_text">OK</string>
 
 </resources>

@@ -10,11 +10,12 @@ package com.amazonaws.mobile;
 
 import android.content.Context;
 import android.util.Log;
+
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.mobile.content.UserFileManager;
-import com.amazonaws.mobile.push.GCMTokenHelper;
-import com.amazonaws.mobile.push.PushManager;
 import com.amazonaws.mobile.user.IdentityManager;
+import com.amazonaws.regions.Region;
+import com.amazonaws.mobile.push.PushManager;
+import com.amazonaws.mobile.push.GCMTokenHelper;
 import com.amazonaws.mobileconnectors.amazonmobileanalytics.AnalyticsConfig;
 import com.amazonaws.mobileconnectors.amazonmobileanalytics.EventClient;
 import com.amazonaws.mobileconnectors.amazonmobileanalytics.InitializationException;
@@ -22,6 +23,9 @@ import com.amazonaws.mobileconnectors.amazonmobileanalytics.MobileAnalyticsManag
 import com.amazonaws.mobileconnectors.amazonmobileanalytics.SessionClient;
 import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.mobile.content.UserFileManager;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 /**
  * The AWS Mobile Client bootstraps the application to make calls to AWS 
  * services. It creates clients which can be used to call services backing the
@@ -41,6 +45,8 @@ public class AWSMobileClient {
     private PushManager pushManager;
     private MobileAnalyticsManager mobileAnalyticsManager;
     private CognitoSyncManager syncManager;
+    private AmazonDynamoDBClient dynamoDBClient;
+    private DynamoDBMapper dynamoDBMapper;
 
     /**
      * Build class used to create the AWS mobile client.
@@ -165,6 +171,9 @@ public class AWSMobileClient {
 
         this.syncManager = new CognitoSyncManager(context, AWSConfiguration.AMAZON_COGNITO_REGION,
             identityManager.getCredentialsProvider(), clientConfiguration);
+        this.dynamoDBClient = new AmazonDynamoDBClient(identityManager.getCredentialsProvider(), clientConfiguration);
+        this.dynamoDBClient.setRegion(Region.getRegion(AWSConfiguration.AMAZON_DYNAMODB_REGION));
+        this.dynamoDBMapper = new DynamoDBMapper(dynamoDBClient);
     }
 
     /**
@@ -234,6 +243,23 @@ public class AWSMobileClient {
         Log.d(LOG_TAG, "AWS Mobile Client is OK");
     }
 
+
+    /**
+     * Gets the DynamoDB Client, which allows accessing Amazon DynamoDB tables.
+     * @return the DynamoDB client instance.
+     */
+    public AmazonDynamoDBClient getDynamoDBClient() {
+        return dynamoDBClient;
+    }
+
+    /**
+     * Gets the Dynamo DB Object Mapper, which allows accessing DynamoDB tables using annotated
+     * data object classes to represent your data using POJOs (Plain Old Java Objects).
+     * @return the DynamoDB Object Mapper instance.
+     */
+    public DynamoDBMapper getDynamoDBMapper() {
+        return dynamoDBMapper;
+    }
 
     /**
      * Gets the Amazon Mobile Analytics Manager, which allows you to submit
