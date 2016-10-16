@@ -25,6 +25,21 @@ public class AWSConfiguration {
       Regions.fromName("eu-west-1");
     public static final String  AMAZON_COGNITO_IDENTITY_POOL_ID =
         "eu-west-1:84f29f2c-16c6-420d-b744-2f850faf07fe";
+    // GOOGLE CLOUD MESSAGING SENDER ID
+    public static final String GOOGLE_CLOUD_MESSAGING_SENDER_ID =
+        "507173729115";
+
+    // SNS PLATFORM APPLICATION ARN
+    public static final String AMAZON_SNS_PLATFORM_APPLICATION_ARN =
+        "arn:aws:sns:eu-west-1:855246549240:app/GCM/awsmobileworkshop_MOBILEHUB_1409238768";
+    public static final Regions AMAZON_SNS_REGION =
+         Regions.fromName("eu-west-1");
+    // SNS DEFAULT TOPIC ARN
+    public static final String AMAZON_SNS_DEFAULT_TOPIC_ARN =
+        "arn:aws:sns:eu-west-1:855246549240:awsmobileworkshop_alldevices_MOBILEHUB_1409238768";
+    // SNS PLATFORM TOPIC ARNS
+    public static final String[] AMAZON_SNS_TOPIC_ARNS =
+        {};
     // S3 BUCKET
     public static final String AMAZON_S3_USER_FILES_BUCKET =
         "awsmobileworkshop-userfiles-mobilehub-1409238768";

@@ -18,6 +18,12 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <permission android:name="com.donnfelker.android.bootstrap.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="com.donnfelker.android.bootstrap.permission.C2D_MESSAGE" />
+
+
     <application
         android:allowBackup="true"
         android:name=".BootstrapApplicationImpl"
@@ -120,6 +126,30 @@
         </provider>
 
         <!-- END - S3 -->
+
+        <!-- BEGIN - PUSH NOTIFICATIONS WITH GOOGLE CLOUD MESSAGING (GCM) -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.donnfelker.android.bootstrap" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".PushListenerService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+
+        <!-- END - PUSH NOTIFICATIONS WITH GOOGLE CLOUD MESSAGING (GCM) -->
 
     </application>
 
