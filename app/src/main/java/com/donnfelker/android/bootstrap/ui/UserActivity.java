@@ -3,19 +3,22 @@ package com.donnfelker.android.bootstrap.ui;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import butterknife.Bind;
+import com.amazonaws.mobile.AWSMobileClient;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.AnalyticsEvent;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.EventClient;
 import com.donnfelker.android.bootstrap.R;
 import com.donnfelker.android.bootstrap.core.User;
 import com.squareup.picasso.Picasso;
-
-import butterknife.Bind;
 
 import static com.donnfelker.android.bootstrap.core.Constants.Extra.USER;
 
 public class UserActivity extends BootstrapActivity {
 
-    @Bind(R.id.iv_avatar) protected ImageView avatar;
-    @Bind(R.id.tv_name) protected TextView name;
+    @Bind(R.id.iv_avatar)
+    protected ImageView avatar;
+    @Bind(R.id.tv_name)
+    protected TextView name;
 
     private User user;
 
@@ -38,6 +41,34 @@ public class UserActivity extends BootstrapActivity {
 
         name.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
 
+        if (user != null) {
+            //Send custom event
+            final EventClient eventClient = AWSMobileClient.defaultMobileClient().getMobileAnalyticsManager().getEventClient();
+            final AnalyticsEvent event = eventClient.createEvent("users_view")
+                    .withAttribute("username", user.getUsername())
+                    .withAttribute("firstname", user.getFirstName())
+                    .withAttribute("lastname", user.getLastName())
+                    .withAttribute("avatar_url", user.getAvatarUrl());
+            eventClient.recordEvent(event);
+            eventClient.submitEvents();
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnPause();
     }
 
 

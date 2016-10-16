@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import butterknife.ButterKnife;
+import com.amazonaws.mobile.AWSMobileClient;
 import com.donnfelker.android.bootstrap.BootstrapApplication;
 import com.donnfelker.android.bootstrap.BootstrapServiceProvider;
 import com.donnfelker.android.bootstrap.R;
@@ -215,5 +216,21 @@ public class MainActivity extends BootstrapActivity {
                 navigateToUserSettings();
                 break;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnPause();
     }
 }

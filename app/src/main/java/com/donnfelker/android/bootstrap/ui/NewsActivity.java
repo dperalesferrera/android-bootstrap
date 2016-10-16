@@ -3,6 +3,9 @@ package com.donnfelker.android.bootstrap.ui;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.amazonaws.mobile.AWSMobileClient;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.AnalyticsEvent;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.EventClient;
 import com.donnfelker.android.bootstrap.R;
 import com.donnfelker.android.bootstrap.core.News;
 
@@ -35,6 +38,29 @@ public class NewsActivity extends BootstrapActivity {
         title.setText(newsItem.getTitle());
         content.setText(newsItem.getContent());
 
+        if (newsItem != null) {
+            //Send custom event
+            final EventClient eventClient = AWSMobileClient.defaultMobileClient().getMobileAnalyticsManager().getEventClient();
+            final AnalyticsEvent event = eventClient.createEvent("news_view")
+                    .withAttribute("title", newsItem.getTitle());
+            eventClient.recordEvent(event);
+            eventClient.submitEvents();
+        }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnPause();
+    }
 }

@@ -10,7 +10,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
+import butterknife.Bind;
+import com.amazonaws.mobile.AWSMobileClient;
 import com.donnfelker.android.bootstrap.BootstrapApplication;
 import com.donnfelker.android.bootstrap.R;
 import com.donnfelker.android.bootstrap.core.PauseTimerEvent;
@@ -24,8 +25,6 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
-
-import butterknife.Bind;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -223,5 +222,20 @@ public class BootstrapTimerActivity extends BootstrapFragmentActivity implements
         chronometer.setText(formattedTime);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnPause();
+    }
 
 }

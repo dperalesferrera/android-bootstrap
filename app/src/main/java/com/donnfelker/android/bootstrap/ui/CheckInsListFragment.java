@@ -3,13 +3,12 @@ package com.donnfelker.android.bootstrap.ui;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.content.Intent;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.ListView;
-
+import com.amazonaws.mobile.AWSMobileClient;
 import com.donnfelker.android.bootstrap.BootstrapApplication;
 import com.donnfelker.android.bootstrap.BootstrapServiceProvider;
 import com.donnfelker.android.bootstrap.R;
@@ -17,11 +16,9 @@ import com.donnfelker.android.bootstrap.authenticator.LogoutService;
 import com.donnfelker.android.bootstrap.core.CheckIn;
 import com.donnfelker.android.bootstrap.util.SingleTypeAdapter;
 
-
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
-
-import javax.inject.Inject;
 
 public class CheckInsListFragment extends ItemListFragment<CheckIn> {
 
@@ -103,5 +100,21 @@ public class CheckInsListFragment extends ItemListFragment<CheckIn> {
     @Override
     protected int getErrorMessage(final Exception exception) {
         return R.string.error_loading_checkins;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnPause();
     }
 }

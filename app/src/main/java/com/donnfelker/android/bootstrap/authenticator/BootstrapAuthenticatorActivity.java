@@ -30,6 +30,8 @@ import com.amazonaws.mobile.user.IdentityManager;
 import com.amazonaws.mobile.user.IdentityProvider;
 import com.amazonaws.mobile.user.signin.FacebookSignInProvider;
 import com.amazonaws.mobile.user.signin.SignInManager;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.AnalyticsEvent;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.EventClient;
 import com.donnfelker.android.bootstrap.BootstrapApplication;
 import com.donnfelker.android.bootstrap.R;
 import com.donnfelker.android.bootstrap.R.id;
@@ -39,7 +41,6 @@ import com.donnfelker.android.bootstrap.core.BootstrapService;
 import com.donnfelker.android.bootstrap.core.Constants;
 import com.donnfelker.android.bootstrap.core.User;
 import com.donnfelker.android.bootstrap.events.UnAuthorizedErrorEvent;
-import com.donnfelker.android.bootstrap.ui.MainActivity;
 import com.donnfelker.android.bootstrap.ui.TextWatcherAdapter;
 import com.donnfelker.android.bootstrap.util.SafeAsyncTask;
 import com.donnfelker.android.bootstrap.util.Toaster;
@@ -225,12 +226,18 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
         super.onResume();
         bus.register(this);
         updateUIWithValidation();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         bus.unregister(this);
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnPause();
     }
 
     private void updateUIWithValidation() {
@@ -416,6 +423,7 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
     private class SignInResultsHandler implements IdentityManager.SignInResultsHandler {
         /**
          * Receives the successful sign-in result and starts the main activity.
+         *
          * @param provider the identity provider used for sign-in.
          */
         @Override
@@ -456,6 +464,13 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
             setAccountAuthenticatorResult(intent.getExtras());
             setResult(RESULT_OK, intent);
 
+            //Send custom event
+            final EventClient eventClient = AWSMobileClient.defaultMobileClient().getMobileAnalyticsManager().getEventClient();
+            final AnalyticsEvent event = eventClient.createEvent("sign_in")
+                    .withAttribute("username",email);
+            eventClient.recordEvent(event);
+            eventClient.submitEvents();
+
             AWSMobileClient.defaultMobileClient()
                     .getIdentityManager().loadUserInfoAndImage(provider, new Runnable() {
                 @Override
@@ -466,8 +481,10 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
             });
         }
 
+
         /**
          * Recieves the sign-in result indicating the user canceled and shows a toast.
+         *
          * @param provider the identity provider with which the user attempted sign-in.
          */
         @Override
@@ -481,8 +498,9 @@ public class BootstrapAuthenticatorActivity extends ActionBarAccountAuthenticato
 
         /**
          * Receives the sign-in result that an error occurred signing in and shows a toast.
+         *
          * @param provider the identity provider with which the user attempted sign-in.
-         * @param ex the exception that occurred.
+         * @param ex       the exception that occurred.
          */
         @Override
         public void onError(final IdentityProvider provider, final Exception ex) {

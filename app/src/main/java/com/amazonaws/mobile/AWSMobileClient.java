@@ -15,6 +15,11 @@ import com.amazonaws.mobile.content.UserFileManager;
 import com.amazonaws.mobile.push.GCMTokenHelper;
 import com.amazonaws.mobile.push.PushManager;
 import com.amazonaws.mobile.user.IdentityManager;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.AnalyticsConfig;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.EventClient;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.InitializationException;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.MobileAnalyticsManager;
+import com.amazonaws.mobileconnectors.amazonmobileanalytics.SessionClient;
 import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
 import com.amazonaws.regions.Regions;
 /**
@@ -34,6 +39,7 @@ public class AWSMobileClient {
     private IdentityManager identityManager;
     private GCMTokenHelper gcmTokenHelper;
     private PushManager pushManager;
+    private MobileAnalyticsManager mobileAnalyticsManager;
     private CognitoSyncManager syncManager;
 
     /**
@@ -44,6 +50,7 @@ public class AWSMobileClient {
         private Context applicationContext;
         private String  cognitoIdentityPoolID;
         private Regions cognitoRegion;
+        private String  mobileAnalyticsAppID;
         private ClientConfiguration clientConfiguration;
         private IdentityManager identityManager;
 
@@ -76,6 +83,16 @@ public class AWSMobileClient {
         }
 
         /**
+	 * Provides the Amazon Mobile Analytics App ID.
+	 * @param mobileAnalyticsAppID application ID
+	 * @return builder
+	 */
+        public Builder withMobileAnalyticsAppID(final String mobileAnalyticsAppID) {
+            this.mobileAnalyticsAppID = mobileAnalyticsAppID;
+            return this;
+        };
+
+        /**
          * Provides the identity manager.
 	 * @param identityManager identity manager
 	 * @return builder
@@ -104,6 +121,7 @@ public class AWSMobileClient {
                 new AWSMobileClient(applicationContext,
                                     cognitoIdentityPoolID,
                                     cognitoRegion,
+                                    mobileAnalyticsAppID,
                                     identityManager,
                                     clientConfiguration);
         }
@@ -112,6 +130,7 @@ public class AWSMobileClient {
     private AWSMobileClient(final Context context,
                             final String  cognitoIdentityPoolID,
                             final Regions cognitoRegion,
+                            final String mobileAnalyticsAppID,
                             final IdentityManager identityManager,
                             final ClientConfiguration clientConfiguration) {
 
@@ -119,6 +138,18 @@ public class AWSMobileClient {
         this.identityManager = identityManager;
         this.clientConfiguration = clientConfiguration;
 
+        try {
+            this.mobileAnalyticsManager =
+                MobileAnalyticsManager.
+                    getOrCreateInstance(context,
+                                        AWSConfiguration.AMAZON_MOBILE_ANALYTICS_APP_ID,
+                                        AWSConfiguration.AMAZON_MOBILE_ANALYTICS_REGION,
+                                        identityManager.getCredentialsProvider(),
+                                        new AnalyticsConfig(clientConfiguration));
+        }
+        catch (final InitializationException ie) {
+            Log.e(LOG_TAG, "Unable to initalize Amazon Mobile Analytics. " + ie.getMessage(), ie);
+        }
 
         this.gcmTokenHelper = new GCMTokenHelper(context, AWSConfiguration.GOOGLE_CLOUD_MESSAGING_SENDER_ID);
         this.pushManager =
@@ -193,6 +224,7 @@ public class AWSMobileClient {
                 new AWSMobileClient.Builder(context)
                     .withCognitoRegion(AWSConfiguration.AMAZON_COGNITO_REGION)
                     .withCognitoIdentityPoolID(AWSConfiguration.AMAZON_COGNITO_IDENTITY_POOL_ID)
+                    .withMobileAnalyticsAppID(AWSConfiguration.AMAZON_MOBILE_ANALYTICS_APP_ID)
                     .withIdentityManager(identityManager)
                     .withClientConfiguration(clientConfiguration)
                     .build();
@@ -203,6 +235,55 @@ public class AWSMobileClient {
     }
 
 
+    /**
+     * Gets the Amazon Mobile Analytics Manager, which allows you to submit
+     * custom and monetization events to the Amazon Mobile Analytics system. It
+     * also handles recording user session data events.
+     * @return mobile analytics manager
+     */
+    public MobileAnalyticsManager getMobileAnalyticsManager() {
+        return this.mobileAnalyticsManager;
+    }
+
+    /**
+     * This method should be invoked when each activity is paused. It is used
+     * to assist in tracking user session data in Amazon Mobile Analytics system.
+     */
+    public void handleOnPause() {
+
+        SessionClient sessionClient = null;
+        EventClient eventClient = null;
+
+        try {
+            if (mobileAnalyticsManager != null &&
+                (sessionClient = mobileAnalyticsManager.getSessionClient()) != null &&
+                (eventClient = mobileAnalyticsManager.getEventClient()) != null) {
+                sessionClient.pauseSession();
+                eventClient.submitEvents();
+            }
+        }
+        catch (final Exception e) {
+            Log.w(LOG_TAG, "Unable to report analytics. " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * This method should be called whenever any activity resumes. It assists in
+     * tracking user session data in the Amazon Mobile Analytics system.
+     */
+    public void handleOnResume() {
+        SessionClient sessionClient = null;
+
+        try {
+            if (mobileAnalyticsManager != null &&
+                (sessionClient = mobileAnalyticsManager.getSessionClient()) != null) {
+                sessionClient.resumeSession();
+            }
+        }
+        catch (final Exception e) {
+            Log.w(LOG_TAG, "Unable to resume analytics. " + e.getMessage(), e);
+        }
+    }
 
     /**
      * Creates a User File Manager instance, which facilitates file transfers

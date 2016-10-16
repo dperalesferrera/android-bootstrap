@@ -25,6 +25,11 @@ public class AWSConfiguration {
       Regions.fromName("eu-west-1");
     public static final String  AMAZON_COGNITO_IDENTITY_POOL_ID =
         "eu-west-1:84f29f2c-16c6-420d-b744-2f850faf07fe";
+    // AMAZON MOBILE ANALYTICS
+    public static final String  AMAZON_MOBILE_ANALYTICS_APP_ID =
+        "ffe5885759af46dcb7ad867740a4ce55";
+    // Amazon Mobile Analytics region
+    public static final Regions AMAZON_MOBILE_ANALYTICS_REGION = Regions.US_EAST_1;
     // GOOGLE CLOUD MESSAGING SENDER ID
     public static final String GOOGLE_CLOUD_MESSAGING_SENDER_ID =
         "507173729115";

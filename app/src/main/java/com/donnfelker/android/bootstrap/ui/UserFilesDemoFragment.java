@@ -85,4 +85,20 @@ public class UserFilesDemoFragment extends Fragment {
             .addToBackStack(null)
             .commit();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnPause();
+    }
 }

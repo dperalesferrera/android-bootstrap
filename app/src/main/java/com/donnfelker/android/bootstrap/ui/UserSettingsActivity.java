@@ -347,4 +347,22 @@ public class UserSettingsActivity extends BootstrapActivity {
                 getString(resId, (Object[]) args));
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // pause/resume Mobile Analytics collection
+        AWSMobileClient.defaultMobileClient().handleOnPause();
+
+    }
+
+
 }
