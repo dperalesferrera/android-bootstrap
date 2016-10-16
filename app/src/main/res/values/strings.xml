@@ -115,9 +115,19 @@
     <string name="user_files_browser_error_message_delete_item">Failed to delete item due to \'%s\'.</string>
     <string name="user_files_browser_error_message_download_item">Failed to download item due to \'%s\'.</string>
     <string name="user_files_browser_error_message_upload_file">Failed to upload file due to \'%s\'.</string>
-    <string name="user_settings_notifications">Notifications</string>
+    <string name="user_settings_notifications">Sound and vibrate</string>
     <string name="settings_fragment_dialog_title">Please wait &#8230;</string>
     <string name="settings_fragment_dialog_message">Loading&#8230;</string>
-
+    <string name="push_enable_choice_text">Receive Push Notifications</string>
+    <string name="push_demo_title">Push Notification</string>
+    <string name="push_demo_progress_dialog_title">Please wait &#8230;</string>
+    <string name="push_demo_wait_message_register">Registering device for push notification.</string>
+    <string name="push_demo_wait_message_update_notification">Updating push notification status.</string>
+    <string name="push_demo_wait_message_update_subscription">Updating subscription status.</string>
+    <string name="push_demo_error_message_register">Failed to register device due to \'%s\'.</string>
+    <string name="push_demo_error_message_update_notification">Failed to update notification status due to \'%s\'.</string>
+    <string name="push_demo_error_message_update_subscription">Failed to update subscription due to \'%s\'.</string>
+    <string name="push_demo_error_message_google_play_services_unavailable">Push Notifications are disabled because Google Play Services are unavailable on the device.</string>
+    <string name="push_demo_confirm_message_unsubscribe">Do you want to unsubscribe from \'%s\'.</string>
 
 </resources>

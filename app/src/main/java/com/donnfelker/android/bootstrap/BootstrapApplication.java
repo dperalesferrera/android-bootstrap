@@ -3,7 +3,9 @@
 package com.donnfelker.android.bootstrap;
 
 import android.app.Application;
+import android.util.Log;
 import com.amazonaws.mobile.AWSMobileClient;
+import com.amazonaws.mobile.push.PushManager;
 
 /**
  * Android Bootstrap application
@@ -12,6 +14,7 @@ public abstract class BootstrapApplication extends Application {
 
     private static BootstrapApplication instance;
     private BootstrapComponent component;
+    private final static String LOG_TAG = Application.class.getSimpleName();
 
     /**
      * Create main application
@@ -43,6 +46,16 @@ public abstract class BootstrapApplication extends Application {
         AWSMobileClient.initializeMobileClientIfNecessary(getApplicationContext());
 
         // ... Put any application-specific initialization logic here ...
+
+        // Set a listener for changes in push notification state
+        PushManager.setPushStateListener(new PushManager.PushStateListener() {
+            @Override
+            public void onPushStateChange(final PushManager pushManager, boolean isEnabled) {
+                Log.d(LOG_TAG, "Push Notifications Enabled = " + isEnabled);
+                // ...Put any application-specific push state change logic here...
+            }
+        });
+
     }
 
 

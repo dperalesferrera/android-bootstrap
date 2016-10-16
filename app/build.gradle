@@ -45,12 +45,12 @@ def gitSha = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim
 
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 24
     buildToolsVersion '23.0.3'
 
     defaultConfig {
         minSdkVersion 18
-        targetSdkVersion 23
+        targetSdkVersion 24
 
         versionCode computeVersionCode()
         versionName computeVersionName()
@@ -74,15 +74,15 @@ android {
         exclude 'LICENSE.txt'
     }
 
-     signingConfigs {
-         // Uncomment and set values and then this will work
+    signingConfigs {
+        // Uncomment and set values and then this will work
 //         release {
 //             storeFile file(System.getenv('ANDROID_KEYSTORE_PATH'))
 //             storePassword System.getenv('ANDROID_STORE_PASS')
 //             keyAlias System.getenv('ANDROID_KEY_ALIAS')
 //             keyPassword System.getenv('ANDROID_KEY_PASS')
 //         }
-     }
+    }
 
     lintOptions {
         abortOnError false
@@ -104,19 +104,23 @@ android {
         }
     }
 
+    configurations {
+        // Resolved 'com.android.support:support-annotations' versions for app (24.2.1) and test app (23.1.1) differ.
+        // Add this statement if 'com.android.support:support-annotations:x.x.x' dependencies was already defined in compile scheme.
+        androidTestCompile.exclude group: 'com.android.support', module: 'support-annotations'
+    }
 }
 
 dependencies {
 
     // Android Support Libs
-    compile 'com.android.support:support-v4:23.0.1'
-    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
 
-    compile 'com.google.code.gson:gson:2.3'
+    compile 'com.google.code.gson:gson:2.4'
 
     // Dependency Injection
     compile 'com.google.dagger:dagger:2.0'
-
 
     // View Injection
     compile 'com.jakewharton:butterknife:7.0.1'
@@ -144,10 +148,10 @@ dependencies {
     compile('com.amazonaws:aws-android-sdk-cognito:2.3.2')
     // add the SNS SDK dependency
     compile('com.amazonaws:aws-android-sdk-sns:2.3.2')
+    compile 'com.google.android.gms:play-services-gcm:9.6.1'
 
     //Facebook
     compile 'com.facebook.android:facebook-android-sdk:4.6.0'
-
 
     // Fabric/Crashlytics
     compile('com.crashlytics.sdk.android:crashlytics:2.2.3@aar') {
@@ -155,17 +159,23 @@ dependencies {
     }
 
     testCompile 'junit:junit:4.12'
+
     testCompile "org.robolectric:robolectric:3.0"
     testCompile "org.mockito:mockito-core:1.10.19"
     testCompile 'org.robolectric:shadows-support-v4:3.0'
-    testCompile 'com.android.support.test:runner:0.4.1'
+    testCompile ('com.android.support.test:runner:0.5')   {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
 
+    androidTestCompile ('com.android.support.test:runner:0.5') {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
 
-    androidTestCompile 'com.android.support.test:runner:0.4.1'
     // Set this dependency to use JUnit 4 rules
-    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile ('com.android.support.test:rules:0.5')
+
     // Set this dependency to build and run Espresso tests
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
 
     // Contrib
     androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2.1') {
