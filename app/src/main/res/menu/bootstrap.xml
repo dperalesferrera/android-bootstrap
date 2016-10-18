@@ -25,6 +25,13 @@
     </item>
 
     <item
+        android:id="@+id/send_sms"
+        android:icon="@drawable/ic_action_timer"
+        android:showAsAction="always"
+        android:title="@string/title_send_sms">
+    </item>
+
+    <item
         android:id="@+id/logout"
         android:showAsAction="never"
         android:title="@string/logout_action" >

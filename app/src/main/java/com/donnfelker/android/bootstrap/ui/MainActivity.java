@@ -182,6 +182,9 @@ public class MainActivity extends BootstrapActivity {
             case R.id.user_settings:
                 navigateToUserSettings();
                 return true;
+            case R.id.send_sms:
+                navigateToUserSettings();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -194,6 +197,11 @@ public class MainActivity extends BootstrapActivity {
 
     private void navigateToUserSettings() {
         final Intent i = new Intent(this, UserSettingsActivity.class);
+        startActivity(i);
+    }
+
+    private void navigateToSendSMS() {
+        final Intent i = new Intent(this, SendSMSActivity.class);
         startActivity(i);
     }
 
@@ -214,6 +222,10 @@ public class MainActivity extends BootstrapActivity {
             case 2:
                 // User Settings
                 navigateToUserSettings();
+                break;
+            case 3:
+                // Send SMS
+                navigateToSendSMS();
                 break;
         }
     }

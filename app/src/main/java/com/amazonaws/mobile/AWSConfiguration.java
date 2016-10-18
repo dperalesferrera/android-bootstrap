@@ -51,6 +51,8 @@ public class AWSConfiguration {
     // S3 BUCKET REGION
     public static final Regions AMAZON_S3_USER_FILES_BUCKET_REGION =
         Regions.fromName("eu-west-1");
+    public static final Regions AMAZON_CLOUD_LOGIC_REGION =
+       Regions.fromName("eu-west-1");
     public static final Regions AMAZON_DYNAMODB_REGION =
        Regions.fromName("eu-west-1");
 }

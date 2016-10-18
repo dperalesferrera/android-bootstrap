@@ -10,22 +10,23 @@ package com.amazonaws.mobile;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.mobile.user.IdentityManager;
-import com.amazonaws.regions.Region;
-import com.amazonaws.mobile.push.PushManager;
+import com.amazonaws.mobile.content.UserFileManager;
 import com.amazonaws.mobile.push.GCMTokenHelper;
+import com.amazonaws.mobile.push.PushManager;
+import com.amazonaws.mobile.user.IdentityManager;
 import com.amazonaws.mobileconnectors.amazonmobileanalytics.AnalyticsConfig;
 import com.amazonaws.mobileconnectors.amazonmobileanalytics.EventClient;
 import com.amazonaws.mobileconnectors.amazonmobileanalytics.InitializationException;
 import com.amazonaws.mobileconnectors.amazonmobileanalytics.MobileAnalyticsManager;
 import com.amazonaws.mobileconnectors.amazonmobileanalytics.SessionClient;
 import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.mobile.content.UserFileManager;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.lambdainvoker.LambdaInvokerFactory;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.lambda.AWSLambdaClient;
 /**
  * The AWS Mobile Client bootstraps the application to make calls to AWS 
  * services. It creates clients which can be used to call services backing the
@@ -309,6 +310,34 @@ public class AWSMobileClient {
         catch (final Exception e) {
             Log.w(LOG_TAG, "Unable to resume analytics. " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Gets an AWS Lambda cloud function factory instance. This factory can be used
+     * to create proxies to Lambda cloud functions, which encode and decode JSON parameters
+     * to and from your own annotated POJO (plain old java object) classes. For more information
+     * on using this method to invoke AWS Lambda, please reference the Android AWS Lambda SDK
+     * developer documentation.
+     * @param context application context
+     * @return lambda invoker factory
+     */
+    public LambdaInvokerFactory getCloudFunctionFactory(final Context context) {
+        return
+            new LambdaInvokerFactory(context,
+                                     AWSConfiguration.AMAZON_CLOUD_LOGIC_REGION,
+                                     getIdentityManager().getCredentialsProvider(),
+                                     clientConfiguration);
+    }
+
+    /**
+     * Gets an AWS Lambda cloud function client instance. This client can be used
+     * to directly invoke Lambda cloud functions with JSON parameters and results.
+     * @return lambda client
+     */
+    public AWSLambdaClient getCloudFunctionClient() {
+        AWSLambdaClient awsLambdaClient = new AWSLambdaClient(identityManager.getCredentialsProvider(), clientConfiguration);
+        awsLambdaClient.setRegion(Region.getRegion(AWSConfiguration.AMAZON_CLOUD_LOGIC_REGION));
+        return awsLambdaClient;
     }
 
     /**
